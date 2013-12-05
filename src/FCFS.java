@@ -10,46 +10,43 @@ public class FCFS extends Scheduler {
 		
 	}
 	
-	
-	
 	public void startSimulation(){  // begin simulation
 		
 		LinkedList<Process> task = new LinkedList<Process>(); // creates new jobList<ready queue>
+		LinkedList<Process> waiting = new LinkedList<Process>(); // creates waiting queue
 		mTickCount = 0;
-		Process temp;
+
 		 
 		for(int i = 0; i < Process.GetProcessList().size(); i++ ){  // loop to retrieve all processes
-			task.add(Process.GetProcess(i));    // all processes are placed in jobList 
-			task.get(i).setEnabled(true);    // flag to indicate processes are in the jobList 
+			task.add(Process.GetProcess(i));     // all processes are placed in jobList 
+			task.get(i).setEnabled(true);       // flag to indicate processes are in the jobList 
+			task.get(i).setIdentification(i);  // numbers each process added to the list
 		}
 		
-	
 		for( int j = 0; j < task.size(); j++){
-			for(int  k = j+1; k < task.size(); k++ ){
+			
+			task.get(j).setProcessing(true); // sets true id process is runnign through Cpu simulation
+			task.get(j).setBurstTime(mTickCount);// sets the burst time of that process
+			
+			if (task.get(j).getBurstTime() == ( (task.get(j).getBurstTime()) %2 ) ){ // sets the I/0 time
+				task.get(j).setIOTime(mTickCount++);
+				waiting.add(task.get(j));
 				
-				int burst1 = Process.GetProcess(j).getBurstTime();   // Burst time of process j
-				int burst2 = Process.GetProcess(k).getBurstTime();	// Burst time of process k
-				int P_ID1 = Process.GetProcess(j).getIdentification(); // ID of process j	
-				int P_ID2 = Process.GetProcess(k).getIdentification(); // ID of process k
-				
-				
-				// condition if process j and k have the same burst time  then the lower process ID get processed first
-				if(task.indexOf(burst1) ==  task.indexOf(burst2) && task.indexOf(P_ID1)  > task.indexOf(P_ID2) ){
-					temp = task.get(j);
-					
-					
-				}
 			}
 		}
 		
 	
 		for(; ;){
 			
-			// Output Resluts of the scheduler
-			Process.OutputResults();
-			// update tick Count
-			mTickCount++;
 			
+			// condition where snapshot is taking between specified interval
+			if(mTickCount == mTickCount%10){
+				
+				// Output results of the scheduler
+				Process.OutputResults();
+				// update tick Count
+				mTickCount++;
+			}
 		}
 		
 	}
@@ -57,7 +54,7 @@ public class FCFS extends Scheduler {
 	
 	// sort the incoming processes
 	public void sortProcesses(LinkedList<Process> aProcessList) {
-			
+		
 		
 	}
 	
