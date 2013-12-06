@@ -32,7 +32,7 @@ public class Process
 		mIsProcessing = false;
 	}
 	
-	public void setEnabled(boolean aEnabled)//Enters / Exits Ready Queue
+	public void setEnabled(boolean aEnabled) //Enters / Exits Ready Queue
 	{
 		if (mArrivalTime == -1 || mExitTime == -1)
 		{
@@ -55,6 +55,7 @@ public class Process
 			}
 		}
 	}
+	
 	public void setProcessing(boolean aProcessing)//Has the Processor 
 	{
 		if (!mIsProcessing && aProcessing)
@@ -68,11 +69,12 @@ public class Process
 			mIsProcessing = false;
 		}
 	}
-	public int getWaitingTime()
-	{
-		return mWaitingTime;
-	}
-	private int calculateWaitingTime()
+	
+	
+	// Private setter methods
+	
+	
+	private int calculateWaitingTime() // retrieves the wait time
 	{
 		int waitingTime = 0;
 		for (int i = 0; i < mProcessingTime.size(); i++)
@@ -88,26 +90,28 @@ public class Process
 		}
 		return (mExitTime - waitingTime - mArrivalTime);
 	}
-	public int getTurnaroundTime()
-	{
-		return (mExitTime - mArrivalTime);
-	}
-	public void setIdentification(int aIdentification)
+	
+	private void setIdentification(int aIdentification)
 	{
 		mIdentification = aIdentification;
 	}
-	public void setBurstTime(int aBurstTime)
+	private void setBurstTime(int aBurstTime)
 	{
 		mBurstTime = aBurstTime;
 	}
-	public void setIOTime(int aIOTime)
+	private void setIOTime(int aIOTime)
 	{
 		mIOTime = aIOTime;
 	}
-	public void setPriority(int aPriority)
+	private void setPriority(int aPriority)
 	{
 		mPriority = aPriority;
 	}
+	
+	
+	// Public getter methods
+	
+	
 	public int getIdentification()
 	{
 		return mIdentification;
