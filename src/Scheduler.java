@@ -6,6 +6,7 @@ public abstract class Scheduler
 	protected String mSchedulerName;															//Name of the Scheduler
 	protected LinkedList<Process> mProcessList;													//List of Processes
 	
+	protected static int mStateInterval;
 	protected static int mTickCount;															//Tick Count
 	protected static Scheduler mScheduler;														//Instance of Scheduler
 	private static LinkedList<Scheduler> mSchedulerList;										//List of Schedulers
@@ -18,11 +19,17 @@ public abstract class Scheduler
 	}
 	public abstract void startSimulation();														//Override Function for Simulation Run State
 	public abstract void sortProcesses(LinkedList<Process> aProcessList);						//Override Function To Sort Incoming Processes
+	public abstract void outputSnapShot();
 	
 	public static void StartSimulation(Scheduler aScheduler, LinkedList<Process> aProcessList)	//Initialize and then Start the selected Simulation
 	{
+		mStateInterval = 10;
+		mTickCount = 0;
 		mScheduler = aScheduler;
-		mScheduler.startSimulation();
+		for (int i = 0; i < aProcessList.size(); i++)
+		{
+			aProcessList.get(i).SetActiveProcess(true);
+		}
 		mScheduler.sortProcesses(aProcessList);
 		mScheduler.startSimulation();
 	}
@@ -33,6 +40,8 @@ public abstract class Scheduler
 			mSchedulerList = new LinkedList<Scheduler>();
 		}
 		mSchedulerList.add(new PriorityScheduler("PriorityScheduler"));
+		//mSchedulerList.add(new FCFS("fcfs"));
+		//mSchedulerList.add(new SJF("sjf"));
 		return mSchedulerList;
 	}
 	public static int GetTickCount()															//Returns the Tick Count

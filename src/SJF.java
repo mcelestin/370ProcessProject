@@ -20,8 +20,8 @@ public class SJF extends Scheduler {
 		}
 		
 		
-		 
-		Queue<Process> waiting = new LinkedList<Process>(); // creates waiting queue
+		
+		LinkedList<Process> waiting = new LinkedList<Process>(); // creates waiting queue
 			
 		Process temp2;
 		
@@ -45,6 +45,18 @@ public class SJF extends Scheduler {
 			if(task2. )
 		
 		
+		
+	}
+
+	@Override
+	public void sortProcesses(LinkedList<Process> aProcessList) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void outputSnapShot() {
+		// TODO Auto-generated method stub
 		
 	}
 	

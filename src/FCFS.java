@@ -11,49 +11,52 @@ public class FCFS extends Scheduler {
 	}
 	
 	public void startSimulation(){  // begin simulation
-		
+	
 		LinkedList<Process> task = new LinkedList<Process>(); // creates new jobList<ready queue>
-		LinkedList<Process> waiting = new LinkedList<Process>(); // creates waiting queue
-		mTickCount = 0;
 
-		 
 		for(int i = 0; i < Process.GetProcessList().size(); i++ ){  // loop to retrieve all processes
 			task.add(Process.GetProcess(i));     // all processes are placed in jobList 
-			task.get(i).setEnabled(true);       // flag to indicate processes are in the jobList 
 		}
 		
-		for( int j = 0; j < task.size(); j++){
+		while(true){
+		 
+			for(int i = 0; i < Process.GetProcessList().size(); i++ ){  
+				
+				task.get(i).computeBurstTime();       // flag to indicate processes are in the jobList 
+				
+			}
 			
-			task.get(j).setProcessing(true); // sets true id process is running through CPU simulation
+		
 			
-			// set the IO time and places process into waiting list
-			if (task.get(j).isProcessing() == true ){ 
-				waiting.add(task.get(j));
-	
+			//sortProcesses(task);
+			
+			if( mTickCount % 10 == 0 ){
+				
+				outputSnapShot();
+				
+			}
+			mTickCount++;
+			
+			if(mTickCount == 100){
+				break;
+				
 			}
 		
-			if (  (  task.get(j).getIdentification() == (task.size() - 1)   )   &&   (task.get(j).getBurstTime() != 0)   ) {
-				task.add(waiting.get(j));
-				waiting.get(j).getBurstTime();				
-			}
-			
-			
-			
-		}
-	
 		}
 		
 	}
 
 	
 	// sort the incoming processes
-	public void sortProcesses(LinkedList<Process> aProcessList) {
+	public void sortProcesses(LinkedList<Process> job) {
 	
 		return;
-		
 	}
 	
 
-	public void outputSnapShot
+	public void outputSnapShot(){
 	
+			Process.OutputResults();
+	
+	}
 }

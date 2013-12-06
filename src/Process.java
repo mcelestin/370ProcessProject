@@ -1,3 +1,4 @@
+
 import java.util.*;
 import java.io.*;
 public class Process 
@@ -9,14 +10,21 @@ public class Process
 	private int mArrivalTime;
 	private int mExitTime;
 	private int mWaitingTime;
-	private LinkedList<Integer> mProcessingTime; 
-	private boolean mIsEnabled;
+	private int mIOExitTime;
+	private LinkedList<Integer> mProcessingTime;
+	private boolean mIsActive;
 	private boolean mIsProcessing;
+	private boolean mIsIO;
+	private StringBuilder mStatusBuilder;
+	
+	private int mCurrentIOTime;
+	private int mCurrentBurstTime;
 	
 	private static FileReader mFileReader;
 	private static BufferedReader mBufferedReader;
 	private static LinkedList<Process> mProcessList; 		//List of Processes
 	private static LinkedList<Integer> mProcessSequence; 	//Sequence of Processes that accessed the CPU
+	
 	
 	public Process()
 	{
@@ -27,91 +35,29 @@ public class Process
 		mArrivalTime = 0;
 		mExitTime = 0;
 		mWaitingTime = 0;
+		mIOExitTime = 0;
 		mProcessingTime = new LinkedList<Integer>();
-		mIsEnabled = false;
 		mIsProcessing = false;
+		mIsActive = false;
+		mCurrentBurstTime = 0;
 	}
 	
-	public void setEnabled(boolean aEnabled) //Enters / Exits Ready Queue
-	{
-		if (mArrivalTime == -1 || mExitTime == -1)
-		{
-			if (!mIsEnabled && aEnabled)	//Setting Enabled to True
-			{
-				if (mArrivalTime == -1)
-				{
-					mArrivalTime = Scheduler.GetTickCount();
-				}
-				mIsEnabled = true;
-			}
-			if (mIsEnabled && !aEnabled)
-			{
-				if (mExitTime == -1)
-				{
-					mExitTime = Scheduler.GetTickCount();
-				}
-				mIsEnabled = false;
-				mWaitingTime = calculateWaitingTime();
-			}
-		}
-	}
-	
-	public void setProcessing(boolean aProcessing)//Has the Processor 
-	{
-		if (!mIsProcessing && aProcessing)
-		{
-			mIsProcessing = true;
-			mProcessingTime.add(Scheduler.GetTickCount());
-			Process.AddSequence(mIdentification);
-		}
-		if (mIsProcessing && !aProcessing)
-		{
-			mIsProcessing = false;
-		}
-	}
-	
-	
-	// Private setter methods
-	
-	
-	private int calculateWaitingTime() // retrieves the wait time
-	{
-		int waitingTime = 0;
-		for (int i = 0; i < mProcessingTime.size(); i++)
-		{
-			if (i == 0)
-			{
-				waitingTime += (mProcessingTime.get(i) - mArrivalTime); 
-			}
-			if (i > 0)
-			{
-				waitingTime += (mProcessingTime.get(i) - mProcessingTime.get(i - i)); 
-			}
-		}
-		return (mExitTime - waitingTime - mArrivalTime);
-	}
-	
-	private void setIdentification(int aIdentification)
+	public void setIdentification(int aIdentification)
 	{
 		mIdentification = aIdentification;
 	}
-	private void setBurstTime(int aBurstTime)
+	public void setBurstTime(int aBurstTime)
 	{
 		mBurstTime = aBurstTime;
 	}
-	private void setIOTime(int aIOTime)
+	public void setIOTime(int aIOTime)
 	{
 		mIOTime = aIOTime;
 	}
-	private void setPriority(int aPriority)
+	public void setPriority(int aPriority)
 	{
 		mPriority = aPriority;
 	}
-	
-	
-	// Public getter methods
-	
-	
 	public int getIdentification()
 	{
 		return mIdentification;
@@ -128,13 +74,174 @@ public class Process
 	{
 		return mPriority;
 	}
-	
-	
-	/*
-		START STATIC FUNCTIONS:
-		All aspects of the attributes are handled via Class level Functions
-	*/
-	
+	public int getWaitingTime()
+	{
+		return mWaitingTime;
+	}
+	public int getTurnaroundTime()
+	{
+		return (mExitTime - mArrivalTime);
+	}
+	public void SetActiveProcess(boolean aIsActive)
+	{
+		if (mArrivalTime == 0 || mExitTime == 0)
+		{
+			if (!mIsActive && aIsActive)	//Setting Enabled to True
+			{
+				if (mArrivalTime == -1)
+				{
+					mArrivalTime = Scheduler.GetTickCount();
+				}
+				mIsActive = true;
+			}
+			if (mIsActive && !aIsActive)
+			{
+				if (mExitTime == -1)
+				{
+					mExitTime = Scheduler.GetTickCount();
+				}
+				mIsActive = false;
+				mWaitingTime = calculateWaitingTime();
+			}
+		}
+	}
+	public void setProcessing(boolean aIsProcessing)
+	{
+		if (!mIsProcessing && aIsProcessing)
+		{
+			mIsProcessing = true;
+			if (mCurrentBurstTime == 0)
+			{
+				mCurrentBurstTime = mBurstTime;
+			}
+			mProcessingTime.add(Scheduler.GetTickCount());
+			Process.AddSequence(mIdentification);
+		}
+		if (mIsProcessing && !aIsProcessing)
+		{
+			mIsProcessing = false;
+			if (mCurrentBurstTime == 0 && mCurrentIOTime == 0 && (mIOExitTime != 0))
+			{
+				SetActiveProcess(false);
+			}
+		}
+	}
+	public void setIO(boolean aIsIO)
+	{
+		if (!mIsIO && aIsIO)
+		{
+			mIsIO = true;
+			mCurrentIOTime = mIOTime;
+		}
+		if (mIsIO && !aIsIO)
+		{
+			mIsIO = false;
+			mIOExitTime = Scheduler.GetTickCount();
+		}
+	}
+	public void computeBurstTime()
+	{
+		if (mIsProcessing)
+		{
+			if (mIOExitTime == 0)
+			{
+				if (mCurrentBurstTime != (mBurstTime / 2))
+				{
+					System.out.println("Process Number " +getIdentification() +" Processing  CPU Burst: "+mCurrentBurstTime);
+					mCurrentBurstTime = mCurrentBurstTime - 1;
+				}	
+				else if (!mIsIO) 
+				{
+					setProcessing(false);
+					setIO(true);
+					return;
+				}
+			}
+			else
+			{
+				if (mCurrentBurstTime > 0)
+				{
+					System.out.println("Process Number " +getIdentification() +" Processing  CPU Burst: "+mCurrentBurstTime);
+					mCurrentBurstTime = mCurrentBurstTime - 1;
+				}
+				if (mCurrentBurstTime <= 0)
+				{
+					System.out.println("Process Number " +getIdentification() +" Processing Done");
+					setProcessing(false);
+					return;
+				}
+			}
+		}
+		if (mIsIO)
+		{
+			if (mCurrentIOTime > 0)
+			{
+				System.out.println("Process Number " +getIdentification() +" In IO  IO Burst: " +mCurrentIOTime);
+				mCurrentIOTime = mCurrentIOTime - 1;
+			}
+			if (mCurrentIOTime <= 0)
+			{
+				setIO(false);
+				return;
+			}
+		}
+	}
+	public boolean isActive()
+	{
+		return mIsActive;
+	}
+	public boolean isProcessing()
+	{
+		return mIsProcessing;
+	}
+	public boolean isIO()
+	{
+		return mIsIO;
+	}
+	private int calculateWaitingTime()
+	{
+		int waitingTime = 0;
+		for (int i = 0; i < mProcessingTime.size(); i++)
+		{
+			if (i == 0)
+			{
+				waitingTime += (mProcessingTime.get(i) - mArrivalTime); 
+			}
+			if (i > 0)
+			{
+				waitingTime += (mProcessingTime.get(i) - mProcessingTime.get(i - i)); 
+			}
+		}
+		return (mExitTime - waitingTime - mArrivalTime);
+	}
+	public String outputCurrentState()
+	{
+		mStatusBuilder = new StringBuilder();
+		
+		if (mProcessingTime.get(mProcessingTime.size() - 1) == Scheduler.GetTickCount())
+		{
+			mStatusBuilder.append("CPU loading job " +getIdentification() +": CPU burst (" +getBurstTime() +") IO burst (" +getIOTime() +")\n");
+		}
+		else if (mIsProcessing)
+		{
+			mStatusBuilder.append("Servicing " +Scheduler.GetSchedulerName() +"job " +getIdentification() +": CPU burst (" +getBurstTime() +") IO burst (" +getIOTime() +")\n");
+		}
+		
+		if ((mBurstTime == 0 && mIOTime == 0) && ((mProcessingTime.get(mProcessingTime.size() - 1) == Scheduler.GetTickCount()) || mIOExitTime == Scheduler.GetTickCount()))
+		{
+			mStatusBuilder.append("Process " +getIdentification() +" has Finished\n");
+		}
+		else if (!mIsProcessing && (mProcessingTime.get(mProcessingTime.size() - 1)) == Scheduler.GetTickCount())
+		{
+			mStatusBuilder.append("Process " +getIdentification() +" Finished CPU Burst\n");
+		}
+		else if (!mIsIO && (mIOExitTime == Scheduler.GetTickCount()))
+		{
+			mStatusBuilder.append("Process " +getIdentification() +" Finished IO Burst\n");
+		}
+		return new String(mStatusBuilder);
+	}
+
 	
 	
 	
@@ -153,6 +260,10 @@ public class Process
 	}
 	public static void AddSequence(int aIdentification)		
 	{
+		if (mProcessSequence == null)
+		{
+			mProcessSequence = new LinkedList<Integer>();
+		}
 		mProcessSequence.add(aIdentification);
 	}
 	public static float GetAverageWaitingTime()
