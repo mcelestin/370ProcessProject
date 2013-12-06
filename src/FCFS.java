@@ -20,33 +20,27 @@ public class FCFS extends Scheduler {
 		for(int i = 0; i < Process.GetProcessList().size(); i++ ){  // loop to retrieve all processes
 			task.add(Process.GetProcess(i));     // all processes are placed in jobList 
 			task.get(i).setEnabled(true);       // flag to indicate processes are in the jobList 
-			task.get(i).setIdentification(i);  // numbers each process added to the list
 		}
 		
 		for( int j = 0; j < task.size(); j++){
 			
-			task.get(j).setProcessing(true); // sets true id process is runnign through Cpu simulation
-			task.get(j).setBurstTime(mTickCount);// sets the burst time of that process
+			task.get(j).setProcessing(true); // sets true id process is running through CPU simulation
 			
-			if (task.get(j).getBurstTime() == ( (task.get(j).getBurstTime()) %2 ) ){ // sets the I/0 time
-				task.get(j).setIOTime(mTickCount++);
+			// set the IO time and places process into waiting list
+			if (task.get(j).isProcessing() == true ){ 
 				waiting.add(task.get(j));
-				
-			}
-		}
-		
 	
-		for(; ;){
-			
-			
-			// condition where snapshot is taking between specified interval
-			if(mTickCount == mTickCount%10){
-				
-				// Output results of the scheduler
-				Process.OutputResults();
-				// update tick Count
-				mTickCount++;
 			}
+		
+			if (  (  task.get(j).getIdentification() == (task.size() - 1)   )   &&   (task.get(j).getBurstTime() != 0)   ) {
+				task.add(waiting.get(j));
+				waiting.get(j).getBurstTime();				
+			}
+			
+			
+			
+		}
+	
 		}
 		
 	}
@@ -54,9 +48,12 @@ public class FCFS extends Scheduler {
 	
 	// sort the incoming processes
 	public void sortProcesses(LinkedList<Process> aProcessList) {
-		
+	
+		return;
 		
 	}
 	
 
+	public void outputSnapShot
+	
 }
