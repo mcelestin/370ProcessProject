@@ -33,6 +33,7 @@ public abstract class Scheduler
 		mScheduler.sortProcesses(aProcessList);
 		mScheduler.startSimulation();
 	}
+	
 	public static LinkedList<Scheduler> GetSchedulers()											//Returns the List of Scheduler Objects which Extend Scheduler
 	{
 		if (mSchedulerList == null)
@@ -40,8 +41,8 @@ public abstract class Scheduler
 			mSchedulerList = new LinkedList<Scheduler>();
 		}
 		mSchedulerList.add(new PriorityScheduler("PriorityScheduler"));
-		//mSchedulerList.add(new FCFS("fcfs"));
-		//mSchedulerList.add(new SJF("sjf"));
+		mSchedulerList.add(new FCFS("fcfs"));
+		mSchedulerList.add(new SJF("sjf"));
 		return mSchedulerList;
 	}
 	public static int GetTickCount()															//Returns the Tick Count

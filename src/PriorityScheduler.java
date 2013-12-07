@@ -1,5 +1,5 @@
 import java.util.LinkedList;
-import java.util.Locale.Category;
+//import java.util.Locale.Category;
 
 import org.omg.CosNaming._BindingIteratorImplBase;
 
@@ -7,9 +7,9 @@ import org.omg.CosNaming._BindingIteratorImplBase;
 public class PriorityScheduler extends Scheduler
 {
 	private Process mPriorityProcess;
-	public PriorityScheduler(String aSchedulerName){super(aSchedulerName);}
+	public PriorityScheduler(String aSchedulerName)
 	{
-		
+		super(aSchedulerName);
 	}
 	public void startSimulation()
 	{

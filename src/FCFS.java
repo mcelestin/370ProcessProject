@@ -20,29 +20,31 @@ public class FCFS extends Scheduler {
 		
 		while(true){
 		 
-			for(int i = 0; i < Process.GetProcessList().size(); i++ ){  
+			for(int i = 0; i < mProcessList.size(); i++ ){  
 				
-				task.get(i).computeBurstTime();       // flag to indicate processes are in the jobList 
-				
+					task.get(i).computeBurstTime();       // flag to indicate processes are in the jobList
+					
+					if(task.get(i).isActive() && task.get(i).isProcessing() && !task.get(i).isIO()){
+							task.get(i).setProcessing(true);
+					}
+					else
+							task.get(i).computeBurstTime();
+					
 			}
-			
 		
 			
-			//sortProcesses(task);
-			
-			if( mTickCount % 10 == 0 ){
-				
+			if( mTickCount == mTickCount % mStateInterval ){
 				outputSnapShot();
-				
 			}
 			mTickCount++;
 			
-			if(mTickCount == 100){
-				break;
+			if(mTickCount == 100)
 				
-			}
-		
+				break;
 		}
+		
+		Process.OutputResults(mProcessList);
+
 		
 	}
 
@@ -54,9 +56,20 @@ public class FCFS extends Scheduler {
 	}
 	
 
-	public void outputSnapShot(){
 	
-			Process.OutputResults();
 	
+	public void outputSnapShot()
+	{
+		
+		
+		System.out.println("t = " + FCFS.GetTickCount());
+		for(int i = 0; i < mProcessList.size(); i++)
+		{
+			
+		System.out.println(mProcessList.get(i).outputCurrentState());
+			
+		}
+		
+
 	}
 }

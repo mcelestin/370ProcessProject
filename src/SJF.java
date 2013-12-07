@@ -16,7 +16,7 @@ public class SJF extends Scheduler {
 	
 		for(int i = 0; i < Process.GetProcessList().size(); i++ ){  //loop to retrieve all processes
 			task2.add(Process.GetProcess(i));    // all processes are placed in jobList <ready queue>
-			task2.get(i).setEnabled(true);    // flag to indicate processes are in the jobList 
+			task2.get(i).computeBurstTime();    // flag to indicate processes are in the jobList 
 		}
 		
 		
@@ -42,7 +42,7 @@ public class SJF extends Scheduler {
 			}
 			// condition if all 
 			int last = task2.size()-1;
-			if(task2. )
+			//if(task2. )
 		
 		
 		
