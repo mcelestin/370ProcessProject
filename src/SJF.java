@@ -8,57 +8,108 @@ public class SJF extends Scheduler {
 	public SJF(String sjf){
 		super(sjf);
 	}
-	
+
 	public void startSimulation(){
 		
-		LinkedList<Process> task2 = new  LinkedList<Process>(); // creates ready queue
-		
-	
-		for(int i = 0; i < Process.GetProcessList().size(); i++ ){  //loop to retrieve all processes
-			task2.add(Process.GetProcess(i));    // all processes are placed in jobList <ready queue>
-			task2.get(i).computeBurstTime();    // flag to indicate processes are in the jobList 
+
+		while(true){
+
+			sortProcesses(mProcessList);
+			
+			for( int j = 0;  j < mProcessList.size(); j++ ){
+
+				mProcessList.get(j).computeBurstTime();
+
+
+				if(mProcessList.get(j).isActive() && mProcessList.get(j).isProcessing() && !mProcessList.get(j).isIO()){
+
+					mProcessList.get(j).setProcessing(true);
+				}
+				else 
+					mProcessList.get(j).computeBurstTime();
+
+			}
+
+			
+
+			if(mTickCount % mStateInterval == 0){
+
+
+				outputSnapShot();
+
+			}
+
+
+			Process.OutputResults(mProcessList);
+
+		}
+
+
+
+	}
+
+
+	public void sortProcesses(LinkedList<Process> aProcessList) {
+
+		Process temp;
+
+		for(int i = 0; i < aProcessList.size(); i++){
+
+			if(aProcessList.get(i).isActive() && !aProcessList.get(i).isProcessing() && !aProcessList.get(i).isIO()){
+
+				if(aProcessList.get(i).getBurstTime() < aProcessList.get(i-1).getBurstTime()){
+
+					temp = aProcessList.get(i);
+					aProcessList.set(i, aProcessList.get(i-1));
+					aProcessList.set(i-1, temp);
+
+				}
+			}
+
 		}
 		
-		
-		
-		LinkedList<Process> waiting = new LinkedList<Process>(); // creates waiting queue
-			
-		Process temp2;
-		
-		for( int j = 0; j < task2.size(); j++){
-			for(int  k = j+1; k< task2.size(); k++ ){
-				
-				if(Process.GetProcess(j).getBurstTime() == Process.GetProcess(k).getBurstTime() && Process.GetProcess(j).getIdentification() > Process.GetProcess(k).getIdentification() ){
-					temp2 = Process.GetProcess(j);
-					Process.GetProcess(k);
+		mProcessList = aProcessList; 
+		mProcessList.get(0).setProcessing(true);
+	}
+
+
+	public void outputSnapShot(){
+
+
+		StringBuilder readyString = new StringBuilder();
+		StringBuilder deviceString =  new StringBuilder();
+
+
+		System.out.println("t = " + FCFS.GetTickCount());
+		for(int i = 0; i < mProcessList.size(); i++)
+		{
+
+			System.out.println(mProcessList.get(i).outputCurrentState());
+			if(mProcessList.get(i).isActive()){
+				if(!mProcessList.get(i).isProcessing() && !mProcessList.get(i).isIO()){
+					if( i < mProcessList.size() && readyString.length() > 0 ){
+
+						readyString.append("-");
+
+					}
+					readyString.append(mProcessList.get(i).getIdentification());
+				}
+
+				if(!mProcessList.get(i).isProcessing() && mProcessList.get(i).isIO()){
+					if( i < mProcessList.size() && deviceString.length() > 0){
+
+						deviceString.append("-");
+					}
+					readyString.append(mProcessList.get(i).getIdentification());
 				}
 			}
 		}
-		
-			
-			// conditions if I/O Burst = 1/2CPU Burst then process is placed in the waiting queue
-			if( task2.element().getIOTime() == ((task2.element().getBurstTime())/2)){ 
-				waiting.add(task2.element());
-			}
-			// condition if all 
-			int last = task2.size()-1;
-			//if(task2. )
-		
-		
-		
+
+		System.out.println("Current State of Ready Queue:"+ new String(readyString));
+		System.out.println("Current State of IO Queue:"+ new String(deviceString));
+
+
 	}
 
-	@Override
-	public void sortProcesses(LinkedList<Process> aProcessList) {
-		// TODO Auto-generated method stub
-		
-	}
 
-	@Override
-	public void outputSnapShot() {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	
 }
